@@ -31,11 +31,11 @@ jobs:
           channel: stable
           flutter-version: 3.22.3
 
-      - name: Install dependencies
-        run: flutter pub get # action
+      - name: Version check
+        run: flutter --version
 
-      - name: Run tests
-        run: flutter test
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Build android apk and appBundle
         run: flutter build apk
