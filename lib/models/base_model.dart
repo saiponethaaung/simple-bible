@@ -31,7 +31,11 @@ class BaseModel extends ChangeNotifier {
     for (var b in body.entries) {
       languages.putIfAbsent(
         b.key,
-        () => LanguageDTO.fromJSON(b.value['name'], b.value['versions']),
+        () => LanguageDTO.fromJSON(
+          b.value['name'],
+          b.value['code'],
+          b.value['versions'],
+        ),
       );
     }
 

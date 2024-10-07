@@ -39,16 +39,16 @@ class _BookScreenState extends State<BookScreen> {
 
     for (final b in book['chapters'].asMap().keys) {
       list.add(Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: GestureDetector(
           child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.blue,
+                color: const Color.fromRGBO(97, 45, 27, 0.698),
               ),
-              color: Colors.blue,
+              color: const Color.fromRGBO(97, 45, 27, 0.698),
               borderRadius: const BorderRadius.all(
                 Radius.circular(10),
               ),
@@ -56,7 +56,7 @@ class _BookScreenState extends State<BookScreen> {
             child: Center(
               child: Text(
                 '${b + 1}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                 ),
               ),
@@ -82,14 +82,14 @@ class _BookScreenState extends State<BookScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(isReady ? book['book'] : "Loading")),
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: !isReady
-                ? [CircularProgressIndicator()]
+                ? [const CircularProgressIndicator()]
                 : [
                     Wrap(
                       children: renderChapter(),

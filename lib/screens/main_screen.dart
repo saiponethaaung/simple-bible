@@ -54,7 +54,9 @@ class _MainScreenState extends State<MainScreen> {
     baseModel = Provider.of<BaseModel>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('The Holy Bible'),
+        title: const Text(
+          'The Holy Bible',
+        ),
       ),
       // floatingActionButton: FloatingActionButton(
       //   child: const Icon(Icons.clear),

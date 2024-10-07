@@ -18,7 +18,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 2));
       preloadCheck();
     });
   }
@@ -51,26 +52,19 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  setupLanguage() {}
-
   @override
   Widget build(BuildContext context) {
     baseModel = Provider.of<BaseModel>(context);
-    return const Scaffold(
+    return Scaffold(
       body: MainScreenWidget(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('The'),
-            Text(
-              'Holy Bible',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 30,
-              ),
-            ),
+            Image.asset(
+              'assets/logo/main-logo.png',
+              width: 180,
+            )
           ],
         ),
       ),

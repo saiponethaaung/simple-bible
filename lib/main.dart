@@ -27,6 +27,21 @@ class MyApp extends StatelessWidget {
         title: 'Place in Heart - My Bible',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          tabBarTheme: const TabBarTheme(
+            indicatorColor: Color.fromRGBO(103, 33, 9, 1),
+            labelColor: Color.fromRGBO(103, 33, 9, 1),
+          ),
+          scaffoldBackgroundColor: const Color.fromRGBO(246, 239, 209, 1),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color.fromRGBO(103, 33, 9, 1),
+            titleTextStyle: TextStyle(
+              fontSize: 22,
+              color: Color.fromRGBO(246, 239, 209, 1),
+            ),
+            iconTheme: IconThemeData(
+              color: Color.fromRGBO(246, 239, 209, 1),
+            ),
+          ),
           useMaterial3: true,
         ),
         initialRoute: '/splash-screen',
@@ -34,8 +49,8 @@ class MyApp extends StatelessWidget {
           '/': (context) => const MainScreen(),
           '/setup': (context) => const SetupScreen(),
           '/splash-screen': (context) => const SplashScreen(),
-          '/book': (context) => BookScreen(),
-          '/chapter': (context) => ChapterScreen(),
+          '/book': (context) => const BookScreen(),
+          '/chapter': (context) => const ChapterScreen(),
         },
       ),
     );

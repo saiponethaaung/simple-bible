@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:simple_bible/provider/paragraph_builder.dart';
 import 'package:simple_bible/provider/parsed_line.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ChapterScreen extends StatefulWidget {
   const ChapterScreen({super.key});
@@ -54,7 +51,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
       paragraph: lines,
       textDirection: TextDirection.ltr,
       fontSize: 18,
-      rangeOfVersesToCopy: [],
+      rangeOfVersesToCopy: const [],
       addVerseToCopyRange: (lines) {},
     );
   }

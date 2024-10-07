@@ -29,6 +29,10 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+dependencies {
+  implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+}
+
 android {
     namespace = "com.placeinheart.simple_bible"
     compileSdk = flutter.compileSdkVersion

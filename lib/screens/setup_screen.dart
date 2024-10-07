@@ -42,7 +42,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
     String? booksJSON = sh.getString('books');
     String baseURL =
-        'https://raw.githubusercontent.com/saiponethaaung/Bible-JSON/main/bible/languages/${selectedLanguage?.name.toLowerCase()}/${selectedVersion?.name}';
+        'https://raw.githubusercontent.com/saiponethaaung/Bible-JSON/main/bible/languages/${selectedLanguage?.code.toLowerCase()}/${selectedVersion?.version}';
 
     if (booksJSON == null) {
       Uri url = Uri.parse('$baseURL/books.json');
@@ -85,29 +85,44 @@ class _SetupScreenState extends State<SetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text('Select a language'),
-            DropdownMenu(
-              hintText: "Select a language",
-              dropdownMenuEntries: baseModel.languages.entries
-                  .map((l) => DropdownMenuEntry(
-                        value: l.value,
-                        label: l.value.name,
-                      ))
-                  .toList(),
-              onSelected: (language) {
-                selectedLanguage = language;
-                setState(() {});
-              },
+            Container(
+              width: 300,
+              padding: const EdgeInsets.all(15),
+              child: DropdownButtonFormField(
+                decoration: const InputDecoration(),
+                hint: const Text("Select a language"),
+                value: selectedLanguage,
+                items: baseModel.languages.entries
+                    .map((l) => DropdownMenuItem(
+                          value: l.value,
+                          child: Text(l.value.name),
+                        ))
+                    .toList(),
+                onChanged: (language) {
+                  selectedLanguage = language;
+                  setState(() {});
+                },
+              ),
             ),
-            selectedLanguage != null
-                ? TextButton(
-                    onPressed: () {
-                      section = 'version';
-                      setState(() {});
-                    },
-                    child: const Text('Next'))
-                : const SizedBox(
-                    width: 0,
-                  ),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  selectedLanguage != null
+                      ? const Color.fromRGBO(103, 33, 9, 1)
+                      : Colors.grey,
+                ),
+              ),
+              onPressed: () {
+                if (selectedLanguage != null) {
+                  section = 'version';
+                  setState(() {});
+                }
+              },
+              child: const Text(
+                'Next',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ],
         );
       case 'version':
@@ -116,29 +131,43 @@ class _SetupScreenState extends State<SetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text('Select a version'),
-            DropdownMenu(
-              hintText: "Select a version",
-              dropdownMenuEntries: selectedLanguage!.versions
-                  .map((v) => DropdownMenuEntry(
-                        value: v,
-                        label: v.name,
-                      ))
-                  .toList(),
-              onSelected: (version) {
-                selectedVersion = version;
-                setState(() {});
-              },
+            Container(
+              width: 300,
+              padding: const EdgeInsets.all(15),
+              child: DropdownButtonFormField(
+                decoration: const InputDecoration(),
+                hint: const Text("Select a version"),
+                value: selectedVersion,
+                items: selectedLanguage?.versions
+                    .map((v) => DropdownMenuItem(
+                          value: v,
+                          child: Text(v.name),
+                        ))
+                    .toList(),
+                onChanged: (version) {
+                  selectedVersion = version;
+                  setState(() {});
+                },
+              ),
             ),
-            selectedVersion != null
-                ? TextButton(
-                    onPressed: () {
-                      donwloadFiles();
-                    },
-                    child: const Text('Next'))
-                : const SizedBox(
-                    width: 0,
-                  ),
-            Text('Show progress ${showProgress}')
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  selectedVersion != null
+                      ? const Color.fromRGBO(103, 33, 9, 1)
+                      : Colors.grey,
+                ),
+              ),
+              onPressed: () {
+                if (selectedVersion != null) {
+                  donwloadFiles();
+                }
+              },
+              child: const Text(
+                'Next',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ],
         );
       default:

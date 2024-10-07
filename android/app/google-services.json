@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177507429186",
+    "project_id": "simple-bible-770f2",
+    "storage_bucket": "simple-bible-770f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177507429186:android:3821ba02bdc39c268ab6db",
+        "android_client_info": {
+          "package_name": "com.placeinheart.simple_bible"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC92IRFnpR9wy85sdSccPV8AtzRGbWVMtM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

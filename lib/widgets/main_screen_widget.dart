@@ -9,11 +9,12 @@ class MainScreenWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue, Colors.green],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        // gradient: LinearGradient(
+        //   colors: [Colors.blue, Colors.green],
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        // ),
+        color: Color.fromRGBO(246, 239, 209, 1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
