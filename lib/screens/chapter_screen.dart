@@ -3,6 +3,7 @@ import 'package:simple_bible/models/base_model.dart';
 import 'package:simple_bible/provider/paragraph_builder.dart';
 import 'package:simple_bible/provider/parsed_line.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_bible/widgets/zoom_widget.dart';
 
 class ChapterScreen extends StatefulWidget {
   const ChapterScreen({super.key});
@@ -18,6 +19,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
   late int chapter = 1;
   late int totalChapter = 0;
   late Map<String, dynamic> args;
+  late BaseModel baseModel;
 
   @override
   void initState() {
@@ -37,20 +39,19 @@ class _ChapterScreenState extends State<ChapterScreen> {
 
   renderVerses() {
     List<ParsedLine> lines = [];
-    // ParagraphBuilder(paragraph: [],)
 
     for (final verse
         in book['chapters'][chapter - 1]['verses'].asMap().entries) {
       lines.add(ParsedLine(
           verse: '${verse.key + 1}',
-          verseText: verse.value['text'],
+          verseText: verse.value['text'].replaceAll("\n", " "),
           verseStyle: 'v'));
     }
 
     return ParagraphBuilder(
       paragraph: lines,
       textDirection: TextDirection.ltr,
-      fontSize: 18,
+      fontSize: 18 * baseModel.fontScale,
       rangeOfVersesToCopy: const [],
       addVerseToCopyRange: (lines) {},
     );
@@ -58,14 +59,16 @@ class _ChapterScreenState extends State<ChapterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    BaseModel baseModel = Provider.of<BaseModel>(context);
+    baseModel = Provider.of<BaseModel>(context);
     args = (ModalRoute.of(context)!.settings.arguments ?? <String, dynamic>{})
         as Map<String, dynamic>;
 
     return Scaffold(
       appBar: AppBar(title: Text(isReady ? '${book['book']}' : "Loading")),
-      body: SingleChildScrollView(
-        child: Container(
+      body: ZoomWidget(
+        SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 50),
+          child: Container(
             padding: const EdgeInsets.all(15),
             child: Column(
               children: !isReady
@@ -84,11 +87,14 @@ class _ChapterScreenState extends State<ChapterScreen> {
                             child: Icon(
                               Icons.arrow_back,
                               color: chapter > 1 ? Colors.red : Colors.grey,
+                              size: 24 * baseModel.fontScale,
                             ),
                           ),
                           Text(
                             "Chapter $chapter",
-                            style: const TextStyle(fontSize: 30),
+                            style: TextStyle(
+                              fontSize: 30 * baseModel.fontScale,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -102,6 +108,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                               color: chapter < totalChapter
                                   ? Colors.red
                                   : Colors.grey,
+                              size: 24 * baseModel.fontScale,
                             ),
                           ),
                         ],
@@ -109,7 +116,9 @@ class _ChapterScreenState extends State<ChapterScreen> {
                       const SizedBox(height: 30),
                       renderVerses(),
                     ],
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -23,36 +23,46 @@ class MyApp extends StatelessWidget {
           create: (BuildContext context) => BaseModel(),
         )
       ],
-      child: MaterialApp(
-        title: 'Place in Heart - My Bible',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          tabBarTheme: const TabBarTheme(
-            indicatorColor: Color.fromRGBO(103, 33, 9, 1),
-            labelColor: Color.fromRGBO(103, 33, 9, 1),
-          ),
-          scaffoldBackgroundColor: const Color.fromRGBO(246, 239, 209, 1),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color.fromRGBO(103, 33, 9, 1),
-            titleTextStyle: TextStyle(
-              fontSize: 22,
-              color: Color.fromRGBO(246, 239, 209, 1),
-            ),
-            iconTheme: IconThemeData(
-              color: Color.fromRGBO(246, 239, 209, 1),
-            ),
-          ),
-          useMaterial3: true,
+      child: const MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    BaseModel baseModel = Provider.of<BaseModel>(context);
+    return MaterialApp(
+      title: 'Place in Heart - My Bible',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        tabBarTheme: const TabBarTheme(
+          indicatorColor: Color.fromRGBO(103, 33, 9, 1),
+          labelColor: Color.fromRGBO(103, 33, 9, 1),
         ),
-        initialRoute: '/splash-screen',
-        routes: <String, WidgetBuilder>{
-          '/': (context) => const MainScreen(),
-          '/setup': (context) => const SetupScreen(),
-          '/splash-screen': (context) => const SplashScreen(),
-          '/book': (context) => const BookScreen(),
-          '/chapter': (context) => const ChapterScreen(),
-        },
+        scaffoldBackgroundColor: const Color.fromRGBO(246, 239, 209, 1),
+        appBarTheme: AppBarTheme(
+          backgroundColor: const Color.fromRGBO(103, 33, 9, 1),
+          titleTextStyle: TextStyle(
+            fontSize: 22 * baseModel.fontScale,
+            color: const Color.fromRGBO(246, 239, 209, 1),
+          ),
+          iconTheme: const IconThemeData(
+            color: Color.fromRGBO(246, 239, 209, 1),
+          ),
+        ),
+        useMaterial3: true,
       ),
+      initialRoute: '/splash-screen',
+      routes: <String, WidgetBuilder>{
+        '/': (context) => const MainScreen(),
+        '/setup': (context) => const SetupScreen(),
+        '/splash-screen': (context) => const SplashScreen(),
+        '/book': (context) => const BookScreen(),
+        '/chapter': (context) => const ChapterScreen(),
+      },
     );
   }
 }

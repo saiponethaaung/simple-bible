@@ -153,7 +153,9 @@ ComposedVerses verseComposer(
 
           //\q1 «Yàlla du ko wallu!» \qs \+w Selaw|selaw:\+w*\qs*\f + \fr 3.3 \fk Selaw: \ft jàpp nañu ne ndigal la luy taxawloo jàngkat yi, te jombul xalam yi wéy ba tey. Waaye man naa nekk itam ndigal ngir xalam yeek jàngkat yi gëna xumbal.\f*.
           //    \qs \+w Selaw|selaw:\+w*\qs*
-
+          if (textPlusUsfmPair.group(4)!.trim().length < 1) {
+            continue;
+          }
           //these are character styles
           switch (textPlusUsfmPair.group(3)) {
             case 'add':
@@ -193,7 +195,11 @@ ComposedVerses verseComposer(
               // case '+w':
               // example: \q1 Isaaxa jur °\w Yanqóoba|Yanqóoba:\w*;
               int endAt = textPlusUsfmPair.group(4)!.indexOf('|');
-
+              print(
+                  '----------------------------------------------------------------');
+              print(textPlusUsfmPair.group(4));
+              print(
+                  '----------------------------------------------------------------');
               addThisString(
                 textPlusUsfmPair.group(4)!.substring(1, endAt),
               );

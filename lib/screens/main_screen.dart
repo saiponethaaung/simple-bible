@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_bible/widgets/zoom_widget.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -44,7 +45,12 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(15),
-        child: Text(book.value),
+        child: Text(
+          book.value,
+          style: TextStyle(
+            fontSize: 14 * baseModel.fontScale,
+          ),
+        ),
       ),
     );
   }
@@ -57,6 +63,7 @@ class _MainScreenState extends State<MainScreen> {
         title: const Text(
           'The Holy Bible',
         ),
+        leading: const SizedBox(),
       ),
       // floatingActionButton: FloatingActionButton(
       //   child: const Icon(Icons.clear),
@@ -64,49 +71,68 @@ class _MainScreenState extends State<MainScreen> {
       //     clearAllState();
       //   },
       // ),
-      body: DefaultTabController(
-        length: tabs.length,
-        child: Scaffold(
-          appBar: TabBar(
-            tabs: tabs,
-          ),
-          body: TabBarView(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    right: 15,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      ...baseModel.books.entries.take(39).map((book) {
-                        return renderBook(book);
-                      }),
-                    ],
+      body: ZoomWidget(
+        DefaultTabController(
+          length: tabs.length,
+          child: Scaffold(
+            appBar: TabBar(
+              tabs: tabs,
+              labelStyle: TextStyle(
+                fontSize: 14 * baseModel.fontScale,
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      bottom: 50,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: baseModel.newTestamentStart == 0
+                          ? []
+                          : <Widget>[
+                              ...baseModel.books.entries
+                                  .take(baseModel.newTestamentStart - 1)
+                                  .map((book) {
+                                return renderBook(book);
+                              }),
+                            ],
+                    ),
                   ),
                 ),
-              ),
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    right: 15,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      ...baseModel.books.entries.skip(39).map((book) {
-                        return renderBook(book);
-                      }),
-                    ],
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      bottom: 50,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: baseModel.newTestamentStart == 0
+                          ? []
+                          : <Widget>[
+                              ...baseModel.books.entries
+                                  .skip(baseModel.newTestamentStart - 1)
+                                  .map(
+                                (book) {
+                                  return renderBook(
+                                    book,
+                                  );
+                                },
+                              ),
+                            ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

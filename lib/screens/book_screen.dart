@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_bible/widgets/zoom_widget.dart';
 
 class BookScreen extends StatefulWidget {
   const BookScreen({super.key});
@@ -17,6 +18,7 @@ class _BookScreenState extends State<BookScreen> {
   dynamic book = {};
   String bibles = "";
   late String args;
+  late BaseModel baseModel;
 
   @override
   void initState() {
@@ -42,8 +44,8 @@ class _BookScreenState extends State<BookScreen> {
         padding: const EdgeInsets.all(10),
         child: GestureDetector(
           child: Container(
-            width: 40,
-            height: 40,
+            width: 40 * baseModel.fontScale,
+            height: 40 * baseModel.fontScale,
             decoration: BoxDecoration(
               border: Border.all(
                 color: const Color.fromRGBO(97, 45, 27, 0.698),
@@ -56,8 +58,9 @@ class _BookScreenState extends State<BookScreen> {
             child: Center(
               child: Text(
                 '${b + 1}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
+                  fontSize: 14 * baseModel.fontScale,
                 ),
               ),
             ),
@@ -77,17 +80,17 @@ class _BookScreenState extends State<BookScreen> {
 
   @override
   Widget build(BuildContext context) {
-    BaseModel baseModel = Provider.of<BaseModel>(context);
+    baseModel = Provider.of<BaseModel>(context);
     args = (ModalRoute.of(context)!.settings.arguments ?? '') as String;
 
     return Scaffold(
       appBar: AppBar(title: Text(isReady ? book['book'] : "Loading")),
-      body: SizedBox(
-        width: double.infinity,
-        child: SingleChildScrollView(
+      body: ZoomWidget(
+        SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 50),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: !isReady
                 ? [const CircularProgressIndicator()]
                 : [

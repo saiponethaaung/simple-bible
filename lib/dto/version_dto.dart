@@ -1,6 +1,7 @@
 class VersionDTO {
   String version;
   String name;
+  int newTestamentStart;
 
-  VersionDTO(this.version, this.name);
+  VersionDTO(this.version, this.name, this.newTestamentStart);
 }

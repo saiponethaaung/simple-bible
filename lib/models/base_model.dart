@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class BaseModel extends ChangeNotifier {
   String _defaultLanguage = '';
+  double _fontScale = 1.0;
+  int _newTestamentStart = 0;
   late SharedPreferences _sh;
 
   String get defaultLanguage => _defaultLanguage;
@@ -64,6 +66,21 @@ class BaseModel extends ChangeNotifier {
     }
   }
 
+  double get fontScale => _fontScale;
+
+  set fontScale(double value) {
+    _fontScale = value;
+    _sh.setDouble('fontScale', value);
+    notifyListeners();
+  }
+
+  int get newTestamentStart => _newTestamentStart;
+
+  set newTestamentStart(int value) {
+    _newTestamentStart = value;
+    notifyListeners();
+  }
+
   initData() async {
     _sh = await SharedPreferences.getInstance();
 
@@ -77,6 +94,18 @@ class BaseModel extends ChangeNotifier {
 
     if (booksJSON != null) {
       await setBooks(booksJSON);
+    }
+
+    double? scale = _sh.getDouble('fontScale');
+
+    if (scale != null) {
+      fontScale = scale;
+    }
+
+    int? newStart = _sh.getInt('newTestamentStart');
+
+    if (newStart != null) {
+      newTestamentStart = newStart;
     }
   }
 }

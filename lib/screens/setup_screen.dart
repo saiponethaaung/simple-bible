@@ -17,7 +17,8 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> {
   String section = 'language';
   int downloadCount = 0;
-  String downloadDialog = 'Downloading {{book}} of 66...';
+  int bookTotal = 0;
+  String downloadDialog = 'Downloading {{book}} of {{bookTotal}}...';
   bool showProgress = false;
   LanguageDTO? selectedLanguage;
   VersionDTO? selectedVersion;
@@ -30,12 +31,12 @@ class _SetupScreenState extends State<SetupScreen> {
     super.initState();
   }
 
-  donwloadFiles() async {
+  donwloadFiles(context) async {
     sh = await SharedPreferences.getInstance();
-    await downloadBooks();
+    await downloadBooks(context);
   }
 
-  downloadBooks() async {
+  downloadBooks(context) async {
     showProgress = true;
 
     setState(() {});
@@ -61,6 +62,9 @@ class _SetupScreenState extends State<SetupScreen> {
 
     // download Books
 
+    bookTotal = baseModel.books.keys.length;
+    setState(() {});
+
     for (final key in baseModel.books.keys) {
       downloadCount++;
       setState(() {});
@@ -74,6 +78,9 @@ class _SetupScreenState extends State<SetupScreen> {
       }
     }
     sh.setString('defaultLanguage', selectedLanguage!.name);
+    sh.setDouble('fontScale', 1.0);
+    sh.setInt('newTestamentStart', selectedVersion!.newTestamentStart);
+    baseModel.newTestamentStart = selectedVersion!.newTestamentStart;
     Navigator.pushReplacementNamed(context, '/');
   }
 
@@ -160,7 +167,7 @@ class _SetupScreenState extends State<SetupScreen> {
               ),
               onPressed: () {
                 if (selectedVersion != null) {
-                  donwloadFiles();
+                  donwloadFiles(context);
                 }
               },
               child: const Text(
@@ -201,10 +208,12 @@ class _SetupScreenState extends State<SetupScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
-                      downloadDialog.replaceFirst(
-                        "{{book}}",
-                        downloadCount.toString(),
-                      ),
+                      downloadDialog
+                          .replaceFirst(
+                            "{{book}}",
+                            downloadCount.toString(),
+                          )
+                          .replaceFirst("{{bookTotal}}", bookTotal.toString()),
                     ),
                   ),
                 ),

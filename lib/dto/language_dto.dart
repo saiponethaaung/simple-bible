@@ -12,7 +12,11 @@ class LanguageDTO {
     List<VersionDTO> versionList = [];
 
     for (final v in versions) {
-      versionList.add(VersionDTO(v['version'], v['name']));
+      versionList.add(VersionDTO(
+        v['version'],
+        v['name'],
+        v['newTestament']['start'],
+      ));
     }
 
     return LanguageDTO(name, code, versionList);
