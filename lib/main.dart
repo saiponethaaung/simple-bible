@@ -38,7 +38,7 @@ class MainApp extends StatelessWidget {
       title: 'Place in Heart - My Bible',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        tabBarTheme: const TabBarTheme(
+        tabBarTheme: const TabBarThemeData(
           indicatorColor: Color.fromRGBO(103, 33, 9, 1),
           labelColor: Color.fromRGBO(103, 33, 9, 1),
         ),
