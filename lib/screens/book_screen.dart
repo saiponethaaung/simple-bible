@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:simple_bible/db/db.dart';
+import 'package:simple_bible/dto/book_dto.dart';
+import 'package:simple_bible/dto/chapter_dto.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,9 +18,9 @@ class BookScreen extends StatefulWidget {
 
 class _BookScreenState extends State<BookScreen> {
   bool isReady = false;
-  dynamic book = {};
+  late BookDTO book;
   String bibles = "";
-  late String args;
+  List<ChapterDTO> chapters = [];
   late BaseModel baseModel;
 
   @override
@@ -27,11 +30,17 @@ class _BookScreenState extends State<BookScreen> {
   }
 
   initData() async {
-    SharedPreferences sh = await SharedPreferences.getInstance();
-    book = jsonDecode(sh.getString('book$args') ?? '');
+    final db = DB.database;
 
-    if (book != null || book != '') {
+    if (book != null) {
       isReady = true;
+      final chapters = await db.query('chapters',
+          where: 'bookId = ?', whereArgs: [book.id], orderBy: '`order` ASC');
+
+      for (final chapter in chapters) {
+        this.chapters.add(ChapterDTO.fromDatabase(chapter));
+      }
+
       setState(() {});
     }
   }
@@ -39,7 +48,7 @@ class _BookScreenState extends State<BookScreen> {
   renderChapter() {
     List<Widget> list = [];
 
-    for (final b in book['chapters'].asMap().keys) {
+    for (final chapter in chapters) {
       list.add(Padding(
         padding: const EdgeInsets.all(10),
         child: GestureDetector(
@@ -57,7 +66,7 @@ class _BookScreenState extends State<BookScreen> {
             ),
             child: Center(
               child: Text(
-                '${b + 1}',
+                chapter.order.toString(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14 * baseModel.fontScale,
@@ -67,7 +76,7 @@ class _BookScreenState extends State<BookScreen> {
           ),
           onTap: () {
             Navigator.pushNamed(context, '/chapter', arguments: {
-              "chapter": b,
+              "chapter": chapter,
               "book": book,
             });
           },
@@ -81,10 +90,10 @@ class _BookScreenState extends State<BookScreen> {
   @override
   Widget build(BuildContext context) {
     baseModel = Provider.of<BaseModel>(context);
-    args = (ModalRoute.of(context)!.settings.arguments ?? '') as String;
+    book = (ModalRoute.of(context)!.settings.arguments) as BookDTO;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isReady ? book['book'] : "Loading")),
+      appBar: AppBar(title: Text(isReady ? book.name : "Loading")),
       body: ZoomWidget(
         SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 50),

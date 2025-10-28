@@ -1,9 +1,84 @@
 import 'package:sqflite/sqflite.dart';
 
 class DB {
-  late Database db;
+  static late Database database;
 
   init() async {
-    db = await openDatabase('bible.db');
+    await initDatabase();
+  }
+
+  get db {
+    return DB.database;
+  }
+
+  close() async {
+    await DB.database?.close();
+  }
+
+  Future<void> initDatabase() async {
+    // await deleteDatabase(
+    //     'bible.db'); // For testing purposes, delete existing database
+
+    final dbPath = await getDatabasesPath();
+    print("Database path is ${dbPath}");
+
+    DB.database = await openDatabase(
+      'bible.db',
+      version: 1,
+      onCreate: (Database db, int version) async {
+        print("Creating database...");
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS languages (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            code TEXT
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS versions (
+            id INTEGER PRIMARY KEY,
+            languageId INTEGER,
+            name TEXT,
+            version TEXT,
+            translation TEXT,
+            oldTestament TEXT,
+            newTestament TEXT,
+            FOREIGN KEY(languageId) REFERENCES languages(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS books (
+            id INTEGER PRIMARY KEY,
+            `order` INTEGER,
+            name TEXT,
+            versionId INTEGER,
+            FOREIGN KEY(versionId) REFERENCES versions(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS chapters (
+            id INTEGER PRIMARY KEY,
+            `order` INTEGER,
+            name TEXT nullable,
+            bookId INTEGER,
+            FOREIGN KEY(bookId) REFERENCES books(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS verses (
+            id INTEGER PRIMARY KEY,
+            `order` INTEGER,
+            content TEXT,
+            chapterId INTEGER,
+            FOREIGN KEY(chapterId) REFERENCES chapters(id) ON DELETE CASCADE
+          )
+        ''');
+      },
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        // Handle database upgrade if needed
+        print("Upgrading database from version $oldVersion to $newVersion");
+      },
+    );
   }
 }

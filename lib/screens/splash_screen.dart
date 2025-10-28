@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:simple_bible/api/bible.api.dart';
+import 'package:simple_bible/db/db.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:simple_bible/widgets/main_screen_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   late BaseModel baseModel;
+  late DB db;
 
   @override
   void initState() {
@@ -27,29 +28,29 @@ class _SplashScreenState extends State<SplashScreen> {
   preloadCheck() async {
     await baseModel.initData();
 
-    if (baseModel.defaultLanguage.isEmpty || baseModel.books.isEmpty) {
-      SharedPreferences sh = await SharedPreferences.getInstance();
-      String? languageJSON = sh.getString('languages');
+    db = DB();
+    await db.init();
 
-      if (languageJSON == null) {
-        Uri url = Uri.parse(
-            'https://raw.githubusercontent.com/saiponethaaung/Bible-JSON/main/bible/languages.json');
-        var response = await http.get(url);
+    BibleAPI bibleAPI = BibleAPI();
 
-        if (response.statusCode == 200) {
-          languageJSON = response.body;
-          sh.setString('languages', languageJSON);
-        } else {
-          // Todo handle api response error
-        }
-      }
+    var languageCountQuery = await db.db.query('languages');
 
-      baseModel.setupLanguage(languageJSON!);
-
-      Navigator.pushReplacementNamed(context, "/setup");
-    } else {
-      Navigator.pushReplacementNamed(context, "/");
+    if (languageCountQuery.isEmpty) {
+      // Handle error if languages fail to load
+      await bibleAPI.loadLanguages();
     }
+
+    final bookCount = await db.db.query('books');
+
+    if (baseModel.defaultLanguage.isEmpty ||
+        baseModel.defaultVersion.isEmpty ||
+        bookCount.isEmpty) {
+      Navigator.pushReplacementNamed(context, "/setup");
+      return;
+    }
+
+    await baseModel.loadDataFromDB();
+    Navigator.pushReplacementNamed(context, "/");
   }
 
   @override

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:simple_bible/db/db.dart';
+import 'package:simple_bible/dto/book_dto.dart';
+import 'package:simple_bible/dto/chapter_dto.dart';
+import 'package:simple_bible/dto/verse_dto.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:simple_bible/provider/paragraph_builder.dart';
 import 'package:simple_bible/provider/parsed_line.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_bible/widgets/zoom_widget.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ChapterScreen extends StatefulWidget {
   const ChapterScreen({super.key});
@@ -14,12 +19,13 @@ class ChapterScreen extends StatefulWidget {
 
 class _ChapterScreenState extends State<ChapterScreen> {
   bool isReady = false;
-  dynamic book = {};
-  String bibles = "";
-  late int chapter = 1;
+  Database db = DB.database;
+  late BookDTO book;
+  late ChapterDTO chapter;
   late int totalChapter = 0;
-  late Map<String, dynamic> args;
   late BaseModel baseModel;
+  late dynamic args;
+  List<VerseDTO> verses = [];
 
   @override
   void initState() {
@@ -28,23 +34,40 @@ class _ChapterScreenState extends State<ChapterScreen> {
   }
 
   initData() async {
-    if (book != null || book != '') {
-      isReady = true;
-      chapter = args['chapter'] + 1;
-      book = args['book'];
-      totalChapter = book['chapters'].asMap().length;
-      setState(() {});
-    }
+    isReady = true;
+    book = args['book'];
+    chapter = args['chapter'];
+
+    totalChapter = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM chapters WHERE bookId = ?',
+        [book.id]).then((value) => value.first['count'] as int);
+
+    await changeChapter(chapter.order);
+  }
+
+  changeChapter(int chapterOrder) async {
+    chapter = ChapterDTO.fromDatabase((await db.query('chapters',
+            where: 'bookId = ? AND `order` = ?',
+            whereArgs: [book.id, chapterOrder]))
+        .first);
+
+    final verseRecords = await db.query('verses',
+        where: 'chapterId = ?',
+        whereArgs: [chapter.id],
+        orderBy: '`order` ASC');
+
+    verses = verseRecords.map((data) => VerseDTO.fromDatabase(data)).toList();
+
+    setState(() {});
   }
 
   renderVerses() {
     List<ParsedLine> lines = [];
 
-    for (final verse
-        in book['chapters'][chapter - 1]['verses'].asMap().entries) {
+    for (final verse in verses) {
       lines.add(ParsedLine(
-          verse: '${verse.key + 1}',
-          verseText: verse.value['text'].replaceAll("\n", " "),
+          verse: '${verse.order}',
+          verseText: verse.content.replaceAll("\n", " "),
           verseStyle: 'v'));
     }
 
@@ -57,14 +80,53 @@ class _ChapterScreenState extends State<ChapterScreen> {
     );
   }
 
+  chapterIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () async {
+            if (chapter.order > 1) {
+              await changeChapter(chapter.order - 1);
+              setState(() {});
+            }
+          },
+          child: Icon(
+            Icons.arrow_back,
+            color: chapter.order > 1 ? Colors.red : Colors.grey,
+            size: 24 * baseModel.fontScale,
+          ),
+        ),
+        Text(
+          "Chapter ${chapter.order}",
+          style: TextStyle(
+            fontSize: 30 * baseModel.fontScale,
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
+            if (chapter.order < totalChapter) {
+              await changeChapter(chapter.order + 1);
+              setState(() {});
+            }
+          },
+          child: Icon(
+            Icons.arrow_forward,
+            color: chapter.order < totalChapter ? Colors.red : Colors.grey,
+            size: 24 * baseModel.fontScale,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     baseModel = Provider.of<BaseModel>(context);
-    args = (ModalRoute.of(context)!.settings.arguments ?? <String, dynamic>{})
-        as Map<String, dynamic>;
+    args = ModalRoute.of(context)!.settings.arguments;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isReady ? '${book['book']}' : "Loading")),
+      appBar: AppBar(title: Text(isReady ? '${book.name}' : "Loading")),
       body: ZoomWidget(
         SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 50),
@@ -74,47 +136,12 @@ class _ChapterScreenState extends State<ChapterScreen> {
               children: !isReady
                   ? [const CircularProgressIndicator()]
                   : [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (chapter > 1) {
-                                chapter--;
-                                setState(() {});
-                              }
-                            },
-                            child: Icon(
-                              Icons.arrow_back,
-                              color: chapter > 1 ? Colors.red : Colors.grey,
-                              size: 24 * baseModel.fontScale,
-                            ),
-                          ),
-                          Text(
-                            "Chapter $chapter",
-                            style: TextStyle(
-                              fontSize: 30 * baseModel.fontScale,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              if (chapter < totalChapter) {
-                                chapter++;
-                                setState(() {});
-                              }
-                            },
-                            child: Icon(
-                              Icons.arrow_forward,
-                              color: chapter < totalChapter
-                                  ? Colors.red
-                                  : Colors.grey,
-                              size: 24 * baseModel.fontScale,
-                            ),
-                          ),
-                        ],
-                      ),
+                      chapterIndicator(),
                       const SizedBox(height: 30),
                       renderVerses(),
+                      const SizedBox(height: 15),
+                      chapterIndicator(),
+                      const SizedBox(height: 30),
                     ],
             ),
           ),

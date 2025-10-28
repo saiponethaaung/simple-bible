@@ -1,19 +1,31 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:simple_bible/db/db.dart';
+import 'package:simple_bible/dto/book_dto.dart';
 import 'package:simple_bible/dto/language_dto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_bible/dto/version_dto.dart';
 
 class BaseModel extends ChangeNotifier {
   String _defaultLanguage = '';
+  String _defaultVersion = '';
   double _fontScale = 1.0;
-  int _newTestamentStart = 0;
   late SharedPreferences _sh;
+  VersionDTO? _version;
+  List<BookDTO> _books = [];
 
   String get defaultLanguage => _defaultLanguage;
 
   set defaultLangauge(String value) {
     _defaultLanguage = value;
+    notifyListeners();
+  }
+
+  String get defaultVersion => _defaultVersion;
+
+  set defaultVersion(String value) {
+    _defaultVersion = value;
     notifyListeners();
   }
 
@@ -26,44 +38,29 @@ class BaseModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  setupLanguage(String jsonString) {
-    Map<String, LanguageDTO> languages = {};
-    Map<String, dynamic> body = jsonDecode(jsonString);
-
-    for (var b in body.entries) {
-      languages.putIfAbsent(
-        b.key,
-        () => LanguageDTO.fromJSON(
-          b.value['name'],
-          b.value['code'],
-          b.value['versions'],
-        ),
+  setupLanguage(dynamic languages) {
+    for (var language in languages) {
+      _languages.putIfAbsent(
+        language['code'],
+        () => LanguageDTO.fromDatabase(language),
       );
     }
 
     this.languages = languages;
   }
 
-  Map<String, String> _books = {};
+  List<BookDTO> get books => _books;
 
-  Map<String, String> get books => _books;
-
-  set books(Map<String, String> value) {
+  set books(List<BookDTO> value) {
     _books = value;
     notifyListeners();
   }
 
-  setBooks(String jsonString) {
-    if (jsonString != '') {
-      Map<dynamic, dynamic> bookDynamic = jsonDecode(jsonString);
-      Map<String, String> books = {};
+  VersionDTO? get version => _version;
 
-      for (final b in bookDynamic.entries) {
-        books.putIfAbsent(b.key.toString(), () => b.value);
-      }
-
-      this.books = books;
-    }
+  set version(VersionDTO? value) {
+    _version = value;
+    notifyListeners();
   }
 
   double get fontScale => _fontScale;
@@ -71,13 +68,6 @@ class BaseModel extends ChangeNotifier {
   set fontScale(double value) {
     _fontScale = value;
     _sh.setDouble('fontScale', value);
-    notifyListeners();
-  }
-
-  int get newTestamentStart => _newTestamentStart;
-
-  set newTestamentStart(int value) {
-    _newTestamentStart = value;
     notifyListeners();
   }
 
@@ -90,10 +80,10 @@ class BaseModel extends ChangeNotifier {
       defaultLangauge = shDF;
     }
 
-    String? booksJSON = _sh.getString('books');
+    var shDV = _sh.getString('defaultVersion');
 
-    if (booksJSON != null) {
-      await setBooks(booksJSON);
+    if (shDV != null) {
+      defaultVersion = shDV;
     }
 
     double? scale = _sh.getDouble('fontScale');
@@ -101,11 +91,32 @@ class BaseModel extends ChangeNotifier {
     if (scale != null) {
       fontScale = scale;
     }
+  }
 
-    int? newStart = _sh.getInt('newTestamentStart');
+  loadDataFromDB() async {
+    print("Loading data from database...");
+    final db = DB().db;
 
-    if (newStart != null) {
-      newTestamentStart = newStart;
+    final loadVersion = await db.query(
+      'versions',
+      where: 'id = ?',
+      whereArgs: [int.parse(defaultVersion)],
+    );
+
+    version = VersionDTO.fromDatabase(loadVersion[0]);
+
+    final loadBooks = await db.query(
+      'books',
+      where: 'versionId = ?',
+      whereArgs: [int.parse(defaultVersion)],
+      orderBy: '`order` ASC',
+    );
+
+    List<BookDTO> bookList = [];
+    for (final book in loadBooks) {
+      bookList.add(BookDTO.fromDatabase(book));
     }
+    books = bookList;
+    print("Loading data from database done...");
   }
 }

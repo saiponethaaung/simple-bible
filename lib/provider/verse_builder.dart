@@ -195,11 +195,11 @@ ComposedVerses verseComposer(
               // case '+w':
               // example: \q1 Isaaxa jur °\w Yanqóoba|Yanqóoba:\w*;
               int endAt = textPlusUsfmPair.group(4)!.indexOf('|');
-              print(
-                  '----------------------------------------------------------------');
-              print(textPlusUsfmPair.group(4));
-              print(
-                  '----------------------------------------------------------------');
+              // print(
+              //     '----------------------------------------------------------------');
+              // print(textPlusUsfmPair.group(4));
+              // print(
+              //     '----------------------------------------------------------------');
               addThisString(
                 textPlusUsfmPair.group(4)!.substring(1, endAt),
               );

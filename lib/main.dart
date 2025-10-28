@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:simple_bible/models/base_model.dart';
+import 'package:simple_bible/screens/about_screen.dart';
 import 'package:simple_bible/screens/chapter_screen.dart';
 import 'package:simple_bible/screens/main_screen.dart';
 import 'package:simple_bible/screens/book_screen.dart';
 import 'package:simple_bible/screens/setup_screen.dart';
 import 'package:simple_bible/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_bible/screens/version_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,6 +57,7 @@ class MainApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       initialRoute: '/splash-screen',
       routes: <String, WidgetBuilder>{
         '/': (context) => const MainScreen(),
@@ -62,6 +65,8 @@ class MainApp extends StatelessWidget {
         '/splash-screen': (context) => const SplashScreen(),
         '/book': (context) => const BookScreen(),
         '/chapter': (context) => const ChapterScreen(),
+        '/about': (context) => AboutScreen(),
+        '/version': (context) => const VersionScreen(),
       },
     );
   }
