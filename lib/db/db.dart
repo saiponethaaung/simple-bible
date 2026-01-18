@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:simple_bible/dto/version_dto.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DB {
@@ -24,7 +27,7 @@ class DB {
 
     DB.database = await openDatabase(
       'bible.db',
-      version: 1,
+      version: 2,
       onCreate: (Database db, int version) async {
         print("Creating database...");
 
@@ -78,7 +81,36 @@ class DB {
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         // Handle database upgrade if needed
         print("Upgrading database from version $oldVersion to $newVersion");
+
+        // Fix testament typo in translations for older versions
+        if (oldVersion < 2) {
+          final versions = await db.query('versions');
+          for (final version in versions) {
+            final dto = VersionDTO.fromDatabase(version);
+
+            if (dto.translation!['oldTestament']!
+                    .toLowerCase()
+                    .contains('testiment') ||
+                dto.translation!['newTestament']!
+                    .toLowerCase()
+                    .contains('testiment')) {
+              dto.translation!['oldTestament'] = dto
+                  .translation!['oldTestament']!
+                  .replaceAll('Testiment', 'Testament');
+              dto.translation!['newTestament'] = dto
+                  .translation!['newTestament']!
+                  .replaceAll('Testiment', 'Testament');
+              await db.update(
+                'versions',
+                {'translation': jsonEncode(dto.translation)},
+                where: 'id = ?',
+                whereArgs: [dto.id],
+              );
+            }
+          }
+        }
       },
+      onOpen: (Database db) async {},
     );
   }
 }

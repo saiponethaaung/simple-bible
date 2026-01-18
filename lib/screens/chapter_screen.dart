@@ -65,9 +65,12 @@ class _ChapterScreenState extends State<ChapterScreen> {
     List<ParsedLine> lines = [];
 
     for (final verse in verses) {
+      print("-" * 20);
+      print(verse.order);
+      print(verse.content.replaceAll("\n", " ").replaceAll("\\+add", "").replaceAll("\\+add*", ""));
       lines.add(ParsedLine(
           verse: '${verse.order}',
-          verseText: verse.content.replaceAll("\n", " "),
+          verseText: verse.content.replaceAll("\n", " ").replaceAll("\\+add", "").replaceAll("\\+add*", ""),
           verseStyle: 'v'));
     }
 

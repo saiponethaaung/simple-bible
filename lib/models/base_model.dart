@@ -102,7 +102,8 @@ class BaseModel extends ChangeNotifier {
       where: 'id = ?',
       whereArgs: [int.parse(defaultVersion)],
     );
-
+    print("loadVersion");
+    print(loadVersion);
     version = VersionDTO.fromDatabase(loadVersion[0]);
 
     final loadBooks = await db.query(

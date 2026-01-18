@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:simple_bible/db/db.dart';
 import 'package:simple_bible/dto/book_dto.dart';
 import 'package:simple_bible/dto/chapter_dto.dart';
 import 'package:simple_bible/models/base_model.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_bible/widgets/zoom_widget.dart';
 
 class BookScreen extends StatefulWidget {
@@ -32,6 +29,7 @@ class _BookScreenState extends State<BookScreen> {
   initData() async {
     final db = DB.database;
 
+    // ignore: unnecessary_null_comparison
     if (book != null) {
       isReady = true;
       final chapters = await db.query('chapters',
@@ -99,12 +97,15 @@ class _BookScreenState extends State<BookScreen> {
           padding: const EdgeInsets.only(bottom: 50),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: !isReady
                 ? [const CircularProgressIndicator()]
                 : [
-                    Wrap(
-                      children: renderChapter(),
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        children: renderChapter(),
+                      ),
                     )
                   ],
           ),
