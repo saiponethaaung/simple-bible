@@ -65,13 +65,38 @@ class _ChapterScreenState extends State<ChapterScreen> {
     List<ParsedLine> lines = [];
 
     for (final verse in verses) {
-      print("-" * 20);
+      // print("-" * 20);
       print(verse.order);
-      print(verse.content.replaceAll("\n", " ").replaceAll("\\+add", "").replaceAll("\\+add*", ""));
-      lines.add(ParsedLine(
-          verse: '${verse.order}',
-          verseText: verse.content.replaceAll("\n", " ").replaceAll("\\+add", "").replaceAll("\\+add*", ""),
-          verseStyle: 'v'));
+      print(verse.content);
+      print(verse.content
+          .replaceAll(
+              RegExp(r'\\(f|x|ef|ex)\b.*?\\(f|x|ef|ex)\*', dotAll: true), ' ')
+          .replaceAllMapped(RegExp(r'\\\+?(\w+)\s+(.*?)\\\+?\1\*'),
+              (match) => match.group(2) ?? '')
+          .replaceAll(RegExp(r'\\\+?\*?\w+\*?\s?'), ' ')
+          .replaceAll(r'\n', ' ')
+          .replaceAll('\n', ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim());
+      // Temporary solution to remove usfm formatting
+      lines.add(
+        ParsedLine(
+            verse: '${verse.order}',
+            verseText: verse.content
+                .replaceAll(
+                    RegExp(r'\\(f|x|ef|ex)\b.*?\\(f|x|ef|ex)\*', dotAll: true),
+                    ' ')
+                .replaceAllMapped(RegExp(r'\\w\s+([^|]+)\|.*?\\w\*'),
+                    (match) => match.group(1) ?? '')
+                .replaceAllMapped(RegExp(r'\\\+?(\w+)\s+(.*?)\\\+?\1\*'),
+                    (match) => match.group(2) ?? '')
+                .replaceAll(RegExp(r'\\\+?\*?\w+\*?\s?'), ' ')
+                .replaceAll(r'\n', ' ')
+                .replaceAll('\n', ' ')
+                .replaceAll(RegExp(r'\s+'), ' ')
+                .trim(),
+            verseStyle: 'v'),
+      );
     }
 
     return ParagraphBuilder(
